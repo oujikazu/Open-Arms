@@ -39,7 +39,7 @@
       letter-spacing: .08em;
       opacity: .62;
     }
-    button, .download {
+    button {
       display: inline-block;
       border: 0;
       border-radius: 999px;
@@ -51,7 +51,13 @@
       font: 13px/1 Arial, sans-serif;
       cursor: pointer;
     }
-    button:active, .download:active { transform: scale(.98); }
+    button:active { transform: scale(.98); }
+    .save {
+      background: transparent;
+      color: #2f2730;
+      border: 1px solid rgba(47,39,48,.28);
+      margin-top: 12px;
+    }
     .quote {
       margin: 22px 0 12px;
       font-size: 17px;
@@ -62,12 +68,6 @@
       margin: 7px 0;
       font-size: 14px;
       line-height: 1.6;
-    }
-    .download {
-      margin-top: 12px;
-      background: transparent;
-      color: #2f2730;
-      border: 1px solid rgba(47,39,48,.28);
     }
     .signature {
       margin: 20px 0 0;
@@ -89,31 +89,54 @@
     <p class="text">Ich hoffe, du freust dich.</p>
     <p class="text">Wenn du das Bild Downloaden möchtest kannst du das hier tun.</p>
 
-    <a class="download" href="Mandy%20Winion.png" download="Mandy-Winion.png">↓ Download Bild hier ↓</a>
+    <button class="save" id="saveButton" type="button">↓ Download Bild hier ↓</button>
 
     <p class="signature">Kazu ♡</p>
   </main>
 
   <script>
     const song = document.getElementById("song");
-    const button = document.getElementById("playButton");
+    const playButton = document.getElementById("playButton");
+    const saveButton = document.getElementById("saveButton");
+    const imageUrl = "Mandy%20Winion.png";
 
-    button.addEventListener("click", async () => {
+    playButton.addEventListener("click", async () => {
       if (song.paused) {
         try {
           await song.play();
-          button.textContent = "❚❚ Pause";
+          playButton.textContent = "❚❚ Pause";
         } catch (e) {
-          button.textContent = "▶ Play Me";
+          playButton.textContent = "▶ Play Me";
         }
       } else {
         song.pause();
-        button.textContent = "▶ Play Me";
+        playButton.textContent = "▶ Play Me";
       }
     });
 
     song.addEventListener("ended", () => {
-      button.textContent = "▶ Play Me";
+      playButton.textContent = "▶ Play Me";
+    });
+
+    saveButton.addEventListener("click", async () => {
+      try {
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const file = new File([blob], "Mandy-Winion.png", { type: blob.type || "image/png" });
+
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: "Open Arms",
+            text: "Bild speichern"
+          });
+          return;
+        }
+
+        window.open(imageUrl, "_blank");
+      } catch (e) {
+        window.open(imageUrl, "_blank");
+      }
     });
   </script>
 </body>
